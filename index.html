@@ -224,6 +224,31 @@
   }
   .divider { height: 1px; background: #151515; margin: 24px 0; }
 
+  /* ─── DESKTOP TYPOGRAPHY BOOST ─── */
+  @media (min-width: 768px) {
+    .q-label { font-size: 15px; color: #ddd; }
+    .section-title { font-size: 18px; }
+    .section-sub { font-size: 13px; color: #666; }
+    .radio-group label { font-size: 15px; color: #bbb; padding: 13px 18px; }
+    .checkbox-group label { font-size: 15px; color: #bbb; padding: 13px 18px; }
+    .lbtn { font-size: 13px; padding: 12px 6px; }
+    input[type=text] { font-size: 15px; padding: 14px 18px; }
+    .hero h1 { font-size: 40px; }
+    .hero p { font-size: 15px; }
+    .btn-next, .btn-back { font-size: 15px; padding: 15px; }
+  }
+
+  /* ─── VALIDATION ERROR STATES ─── */
+  .q-block.error .q-label, .q-attention.error .q-label, .q-counterbalance.error .q-label { color: #f87171; }
+  .q-block.error .lbtn, .q-attention.error .lbtn, .q-counterbalance.error .lbtn { border-color: rgba(248,113,113,0.4); }
+  .q-block.error .radio-group label, .q-attention.error .radio-group label { border-color: rgba(248,113,113,0.3); }
+  .q-block.error input[type=text] { border-color: rgba(248,113,113,0.5); }
+  .q-block.error .checkbox-group label { border-color: rgba(248,113,113,0.3); }
+  .error-hint { font-size: 11px; color: #f87171; margin-top: 8px; display: none; }
+  .q-block.error .error-hint, .q-attention.error .error-hint, .q-counterbalance.error .error-hint { display: block; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  .shake { animation: shake 0.4s ease; }
+
   /* ─── INPUTS ─── */
   input[type=text] {
     width: 100%;
@@ -839,7 +864,7 @@
     </div>
     <p style="font-size:11px;color:#444;margin-bottom:24px;letter-spacing:0.5px">RATE EACH STATEMENT &nbsp; 1 = Strongly Disagree → 5 = Strongly Agree</p>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p2q1">
       <div class="q-label"><span class="q-num">Q1.</span> I can rely on the app to deliver every single item I ordered.</div>
       <div class="likert" id="p2q1-group">
         <label><input type="radio" name="p2q1" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
@@ -851,7 +876,7 @@
     </div>
     <div class="divider"></div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p2q2">
       <div class="q-label"><span class="q-num">Q2.</span> It is common for me to find at least one missing item in my grocery bag. <span class="q-tag">Reverse-coded</span></div>
       <div class="likert">
         <label><input type="radio" name="p2q2" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
@@ -863,7 +888,7 @@
     </div>
     <div class="divider"></div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p2q3">
       <div class="q-label"><span class="q-num">Q3.</span> The "Pick-and-Pack" precision of my preferred app is highly professional.</div>
       <div class="likert">
         <label><input type="radio" name="p2q3" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
@@ -875,7 +900,7 @@
     </div>
     <div class="divider"></div>
 
-    <div class="q-attention">
+    <div class="q-attention" data-qid="p2q4">
       <div class="q-label"><span class="q-num">Q4.</span> Attention check — please select "Disagree" for this statement to confirm you are reading carefully. <span class="q-tag">Attention check</span></div>
       <div class="likert">
         <label><input type="radio" name="p2q4" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
@@ -886,7 +911,7 @@
       </div>
     </div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p2q5">
       <div class="q-label"><span class="q-num">Q5.</span> Receiving the correct items is the most important part of my shopping experience.</div>
       <div class="likert">
         <label><input type="radio" name="p2q5" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
@@ -898,7 +923,7 @@
     </div>
     <div class="divider"></div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p2q6">
       <div class="q-label"><span class="q-num">Q6.</span> I often feel anxious that the perishables (vegetables/milk) delivered will be of poor quality. <span class="q-tag">Reverse-coded</span></div>
       <div class="likert">
         <label><input type="radio" name="p2q6" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
@@ -910,7 +935,7 @@
     </div>
     <div class="divider"></div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p2q7">
       <div class="q-label"><span class="q-num">Q7.</span> I feel a sense of "psychological safety" when I click 'order' on my primary app.</div>
       <div class="likert">
         <label><input type="radio" name="p2q7" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
@@ -922,7 +947,7 @@
     </div>
     <div class="divider"></div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p2q8">
       <div class="q-label"><span class="q-num">Q8.</span> My trust in the platform would be permanently damaged by a single incorrect order.</div>
       <div class="likert">
         <label><input type="radio" name="p2q8" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
@@ -951,42 +976,42 @@
     </div>
     <p style="font-size:11px;color:#444;margin-bottom:24px;letter-spacing:0.5px">RATE EACH STATEMENT &nbsp; 1 = Strongly Disagree → 5 = Strongly Agree</p>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p3q1">
       <div class="q-label"><span class="q-num">Q1.</span> The speed of delivery (under 15 minutes) is the main reason I use these apps.</div>
       <div class="likert"><label><input type="radio" name="p3q1" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q1" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q1" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q1" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q1" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
     <div class="divider"></div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p3q2">
       <div class="q-label"><span class="q-num">Q2.</span> I wouldn't mind if a delivery took 25 minutes instead of 10, as long as the order is perfect. <span class="q-tag">Reverse-coded</span></div>
       <div class="likert"><label><input type="radio" name="p3q2" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q2" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q2" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q2" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q2" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
     <div class="divider"></div>
 
-    <div class="q-attention">
+    <div class="q-attention" data-qid="p3q3">
       <div class="q-label"><span class="q-num">Q3.</span> Quality control check — please select "Strongly Agree" for this statement. <span class="q-tag">Attention check</span></div>
       <div class="likert"><label><input type="radio" name="p3q3" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q3" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q3" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q3" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q3" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p3q4">
       <div class="q-label"><span class="q-num">Q4.</span> A 5-minute delay beyond the promised time significantly impacts my satisfaction.</div>
       <div class="likert"><label><input type="radio" name="p3q4" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q4" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q4" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q4" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q4" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
     <div class="divider"></div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p3q5">
       <div class="q-label"><span class="q-num">Q5.</span> I find the real-time tracking of my delivery rider to be a necessary feature.</div>
       <div class="likert"><label><input type="radio" name="p3q5" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q5" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q5" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q5" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q5" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
     <div class="divider"></div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p3q6">
       <div class="q-label"><span class="q-num">Q6.</span> I rarely check the "time remaining" countdown after I place my order. <span class="q-tag">Reverse-coded</span></div>
       <div class="likert"><label><input type="radio" name="p3q6" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q6" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q6" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q6" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q6" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
     <div class="divider"></div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p3q7">
       <div class="q-label"><span class="q-num">Q7.</span> Speed is more important to me than the user interface of the app.</div>
       <div class="likert"><label><input type="radio" name="p3q7" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q7" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q7" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q7" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q7" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
@@ -1009,36 +1034,36 @@
     </div>
     <p style="font-size:11px;color:#444;margin-bottom:24px;letter-spacing:0.5px">RATE EACH STATEMENT &nbsp; 1 = Strongly Disagree → 5 = Strongly Agree</p>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p4q1">
       <div class="q-label"><span class="q-num">Q1.</span> The app interface makes it effortless for me to find what I need and check out.</div>
       <div class="likert"><label><input type="radio" name="p4q1" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p4q1" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p4q1" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p4q1" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p4q1" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
     <div class="divider"></div>
 
-    <div class="q-attention">
+    <div class="q-attention" data-qid="p4q2">
       <div class="q-label"><span class="q-num">Q2.</span> If you are reading this, please select "Neither Agree nor Disagree." <span class="q-tag">Attention check</span></div>
       <div class="likert"><label><input type="radio" name="p4q2" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p4q2" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p4q2" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p4q2" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p4q2" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p4q3">
       <div class="q-label"><span class="q-num">Q3.</span> I find the app interface cluttered and difficult to navigate. <span class="q-tag">Reverse-coded</span></div>
       <div class="likert"><label><input type="radio" name="p4q3" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p4q3" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p4q3" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p4q3" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p4q3" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
     <div class="divider"></div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p4q4">
       <div class="q-label"><span class="q-num">Q4.</span> I consider myself a "Loyalist" to my current app and rarely check prices on others.</div>
       <div class="likert"><label><input type="radio" name="p4q4" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p4q4" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p4q4" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p4q4" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p4q4" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
     <div class="divider"></div>
 
-    <div class="q-block">
+    <div class="q-block" data-qid="p4q5">
       <div class="q-label"><span class="q-num">Q5.</span> I intend to continue using this platform for my daily habits over the next 90 days.</div>
       <div class="likert"><label><input type="radio" name="p4q5" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p4q5" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p4q5" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p4q5" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p4q5" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
     <div class="divider"></div>
 
-    <div class="q-counterbalance">
+    <div class="q-counterbalance" data-qid="p4q6">
       <div class="q-label"><span class="q-num">Q6.</span> If a competitor offered 5-minute faster delivery but had more errors, I would stay with my current app. <span class="q-tag">Counter-balance</span></div>
       <div class="likert"><label><input type="radio" name="p4q6" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p4q6" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p4q6" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p4q6" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p4q6" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
     </div>
@@ -1076,7 +1101,109 @@ const SHEET_URL = "https://script.google.com/macros/s/AKfycby2bMZBs2XEBO5oM9ZYar
 const stageLabels = ["Order placed","Picking items","Out for delivery","Almost there","Delivered!"];
 const stagePcts   = [0, 25, 50, 75, 100];
 
+// ── VALIDATION CONFIG ──
+// Each page lists: [containerSelector, type, name/id, required]
+// type: 'radio' | 'checkbox' | 'text-optional' | 'text-required'
+const PAGE_RULES = {
+  0: [
+    {sel:'#page-0 .q-block:nth-of-type(2)', type:'radio',    name:'q2',  msg:'Please select your age group.'},
+    {sel:'#page-0 .q-block:nth-of-type(3)', type:'text',     id:'q3',    msg:'Please enter your city.'},
+    {sel:'#page-0 .q-block:nth-of-type(4)', type:'radio',    name:'q4',  msg:'Please select your occupation.'},
+    {sel:'#page-0 .q-block:nth-of-type(5)', type:'checkbox', name:'q5',  msg:'Please select at least one app.'},
+    {sel:'#page-0 .q-block:nth-of-type(6)', type:'radio',    name:'q6',  msg:'Please select your order frequency.'},
+    {sel:'#page-0 .q-block:nth-of-type(7)', type:'radio',    name:'q7',  msg:'Please select your usage type.'},
+  ],
+  1: [
+    {sel:'[data-qid="p2q1"]', type:'radio', name:'p2q1', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p2q2"]', type:'radio', name:'p2q2', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p2q3"]', type:'radio', name:'p2q3', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p2q4"]', type:'radio', name:'p2q4', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p2q5"]', type:'radio', name:'p2q5', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p2q6"]', type:'radio', name:'p2q6', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p2q7"]', type:'radio', name:'p2q7', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p2q8"]', type:'radio', name:'p2q8', msg:'Please rate this statement.'},
+  ],
+  2: [
+    {sel:'[data-qid="p3q1"]', type:'radio', name:'p3q1', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p3q2"]', type:'radio', name:'p3q2', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p3q3"]', type:'radio', name:'p3q3', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p3q4"]', type:'radio', name:'p3q4', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p3q5"]', type:'radio', name:'p3q5', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p3q6"]', type:'radio', name:'p3q6', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p3q7"]', type:'radio', name:'p3q7', msg:'Please rate this statement.'},
+  ],
+  3: [
+    {sel:'[data-qid="p4q1"]', type:'radio', name:'p4q1', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p4q2"]', type:'radio', name:'p4q2', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p4q3"]', type:'radio', name:'p4q3', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p4q4"]', type:'radio', name:'p4q4', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p4q5"]', type:'radio', name:'p4q5', msg:'Please rate this statement.'},
+    {sel:'[data-qid="p4q6"]', type:'radio', name:'p4q6', msg:'Please rate this statement.'},
+  ],
+};
+
+function validatePage(pageIndex) {
+  const rules = PAGE_RULES[pageIndex];
+  if (!rules) return true;
+  let firstError = null;
+  let allValid = true;
+
+  rules.forEach(rule => {
+    const container = document.querySelector(rule.sel);
+    if (!container) return;
+    // Clear previous error
+    container.classList.remove('error');
+
+    let answered = false;
+    if (rule.type === 'radio') {
+      answered = !!document.querySelector(`input[name="${rule.name}"]:checked`);
+    } else if (rule.type === 'checkbox') {
+      answered = !!document.querySelector(`input[name="${rule.name}"]:checked`);
+    } else if (rule.type === 'text') {
+      const el = document.getElementById(rule.id);
+      answered = el && el.value.trim().length > 0;
+    }
+
+    if (!answered) {
+      container.classList.add('error');
+      // Add hint if not already there
+      if (!container.querySelector('.error-hint')) {
+        const hint = document.createElement('div');
+        hint.className = 'error-hint';
+        hint.textContent = rule.msg;
+        container.appendChild(hint);
+      }
+      if (!firstError) firstError = container;
+      allValid = false;
+    }
+  });
+
+  if (firstError) {
+    firstError.classList.add('shake');
+    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => firstError.classList.remove('shake'), 500);
+    showToast('Please answer all questions before continuing.', true);
+  }
+  return allValid;
+}
+
+// Clear error state when user interacts
+document.addEventListener('change', e => {
+  const container = e.target.closest('.q-block, .q-attention, .q-counterbalance');
+  if (container) container.classList.remove('error');
+});
+document.addEventListener('input', e => {
+  const container = e.target.closest('.q-block');
+  if (container) container.classList.remove('error');
+});
+
 function goTo(n) {
+  const currentPage = [...document.querySelectorAll('[id^="page-"]')]
+    .findIndex(p => !p.classList.contains('hidden'));
+  // Only validate when moving forward
+  if (n > currentPage && currentPage >= 0 && currentPage <= 3) {
+    if (!validatePage(currentPage)) return;
+  }
   for (let i = 0; i < 5; i++) {
     const p = document.getElementById("page-" + i);
     if (p) p.classList.toggle("hidden", i !== n);
@@ -1121,6 +1248,7 @@ function showToast(msg, isError) {
 }
 
 function submitSurvey() {
+  if (!validatePage(3)) return;
   const btn = document.getElementById("submit-btn");
   btn.disabled = true;
   btn.textContent = "Submitting…";
