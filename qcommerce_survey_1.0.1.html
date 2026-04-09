@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Commerce Survey — Speed vs Accuracy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ─── RESET & BASE ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: #080808;
+    color: #e8e8e8;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── BACKGROUND CANVAS ─── */
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative;
+    z-index: 2;
+    padding: 0;
+    overflow: hidden;
+    min-height: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 40px;
+    border-bottom: 1px solid #1e1e1e;
+  }
+  .hero-bg-scene {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(8,8,8,0.2) 0%, rgba(8,8,8,0.85) 80%);
+    z-index: 1;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 0 24px;
+    max-width: 600px;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(74,222,128,0.12);
+    color: #4ade80;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(74,222,128,0.3);
+    margin-bottom: 16px;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(22px, 5vw, 36px);
+    font-weight: 800;
+    line-height: 1.2;
+    color: #f5f5f5;
+    margin-bottom: 12px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+  }
+  .hero h1 span { color: #4ade80; }
+  .hero p {
+    font-size: 13px;
+    color: #999;
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  /* ─── TRACKER ─── */
+  .tracker-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(8,8,8,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #1a1a1a;
+    padding: 12px 20px;
+  }
+  .tracker-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .tracker-meta span { font-size: 11px; color: #555; }
+  .tracker-meta .pct { color: #4ade80; font-weight: 600; }
+  .track-bar {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 6px;
+  }
+  .track-seg {
+    flex: 1;
+    height: 3px;
+    background: #1e1e1e;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .track-seg-fill {
+    height: 100%;
+    background: #4ade80;
+    width: 0%;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+  .track-dots {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1px;
+  }
+  .tdot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #1e1e1e;
+    border: 1.5px solid #2a2a2a;
+    transition: all 0.3s;
+  }
+  .tdot.done { background: #4ade80; border-color: #4ade80; }
+  .tdot.active { background: #fff; border-color: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.2); }
+  .stage-names {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+  }
+  .stage-names span { font-size: 9px; color: #444; text-align: center; flex: 1; letter-spacing: 0.5px; }
+
+  /* ─── MAIN CONTENT ─── */
+  .main {
+    position: relative;
+    z-index: 2;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 16px 80px;
+  }
+
+  /* ─── SECTION CARD ─── */
+  .section-card {
+    background: rgba(14,14,14,0.95);
+    border: 1px solid #1e1e1e;
+    border-radius: 16px;
+    padding: 28px 24px;
+    margin-top: 24px;
+    backdrop-filter: blur(8px);
+  }
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .section-num {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: #0d2010;
+    border: 1px solid #2d5a2d;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: #4ade80; font-weight: 600;
+    flex-shrink: 0;
+    font-family: 'Syne', sans-serif;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #f0f0f0;
+    margin-bottom: 3px;
+  }
+  .section-sub { font-size: 11px; color: #555; line-height: 1.4; }
+
+  /* ─── QUESTION BLOCKS ─── */
+  .q-block { margin-bottom: 28px; }
+  .q-label {
+    font-size: 13px;
+    color: #ccc;
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  .q-num { color: #4ade80; font-weight: 600; margin-right: 4px; }
+  .q-tag {
+    font-size: 9px;
+    color: #555;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .divider { height: 1px; background: #151515; margin: 24px 0; }
+
+  /* ─── INPUTS ─── */
+  input[type=text] {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #222;
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: #e0e0e0;
+    font-size: 13px;
+    font-family: 'Space Grotesk', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type=text]:focus { border-color: #4ade80; }
+  input[type=text]::placeholder { color: #444; }
+
+  /* ─── RADIO GROUPS ─── */
+  .radio-group { display: flex; flex-direction: column; gap: 8px; }
+  .radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 11px 16px;
+    background: #0a0a0a;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #aaa;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .radio-group label:hover { border-color: #333; color: #ddd; }
+  .radio-group input[type=radio] { display: none; }
+  .radio-group label:has(input:checked) {
+    background: #0d2010;
+    border-color: #4ade80;
+    color: #e0e0e0;
+  }
+  .rdot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid #333;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .radio-group label:has(input:checked) .rdot {
+    border-color: #4ade80;
+    background: #4ade80;
+  }
+
+  /* ─── CHECKBOX GROUPS ─── */
+  .checkbox-group { display: flex; flex-direction: column; gap: 8px; }
+  .checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 11px 16px;
+    background: #0a0a0a;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #aaa;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .checkbox-group label:hover { border-color: #333; color: #ddd; }
+  .checkbox-group input[type=checkbox] { display: none; }
+  .checkbox-group label:has(input:checked) { background: #0d2010; border-color: #4ade80; color: #e0e0e0; }
+  .cbox {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    border: 1.5px solid #333;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .checkbox-group label:has(input:checked) .cbox { border-color: #4ade80; background: #4ade80; }
+
+  /* ─── LIKERT ─── */
+  .likert { display: flex; gap: 6px; }
+  .likert label {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+  .likert input[type=radio] { display: none; }
+  .lbtn {
+    width: 100%;
+    padding: 10px 4px;
+    background: #0a0a0a;
+    border: 1px solid #1e1e1e;
+    border-radius: 8px;
+    font-size: 11px;
+    color: #666;
+    text-align: center;
+    transition: all 0.2s;
+    line-height: 1.4;
+    font-family: 'Space Grotesk', sans-serif;
+    cursor: pointer;
+  }
+  .lbtn:hover { border-color: #333; color: #aaa; }
+  .likert input:checked + .lbtn {
+    background: #0d2010;
+    border-color: #4ade80;
+    color: #4ade80;
+  }
+  @media (max-width: 480px) {
+    .likert { flex-wrap: wrap; }
+    .likert label { min-width: calc(20% - 6px); }
+    .lbtn { font-size: 10px; padding: 8px 2px; }
+  }
+
+  /* ─── SPECIAL BLOCKS ─── */
+  .q-attention {
+    background: rgba(26,21,0,0.8);
+    border: 1px solid #3a3000;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 28px;
+  }
+  .q-attention .q-label { color: #f0c040; }
+  .q-attention .q-num { color: #f0c040; }
+  .q-counterbalance {
+    background: rgba(13,26,42,0.8);
+    border: 1px solid #1a3a5a;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 28px;
+  }
+  .q-counterbalance .q-label { color: #7ab8f5; }
+  .q-counterbalance .q-num { color: #7ab8f5; }
+
+  /* ─── NAV BUTTONS ─── */
+  .nav-btns {
+    display: flex;
+    gap: 12px;
+    padding: 20px 0 0;
+  }
+  .btn-back {
+    flex: 1;
+    padding: 14px;
+    background: transparent;
+    border: 1px solid #222;
+    border-radius: 12px;
+    color: #666;
+    font-size: 14px;
+    font-family: 'Space Grotesk', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-back:hover { border-color: #333; color: #aaa; }
+  .btn-next {
+    flex: 2;
+    padding: 14px;
+    background: #0d2010;
+    border: 1px solid #4ade80;
+    border-radius: 12px;
+    color: #4ade80;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Space Grotesk', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-next:hover { background: #152e1a; }
+  .btn-next:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ─── THANK YOU ─── */
+  .thank-you {
+    text-align: center;
+    padding: 80px 24px;
+  }
+  .ty-icon {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: #0d2010;
+    border: 2px solid #4ade80;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+  }
+  .ty-h {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #f0f0f0;
+    margin-bottom: 10px;
+  }
+  .ty-p { font-size: 14px; color: #666; max-width: 340px; margin: 0 auto 8px; line-height: 1.7; }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #0d2010;
+    border: 1px solid #4ade80;
+    color: #4ade80;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    z-index: 999;
+    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .hidden { display: none !important; }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #080808; }
+  ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ─── BACKGROUND SCENE ─── -->
+<div id="bg-canvas">
+  <svg width="100%" height="100%" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <!-- dark warehouse floor -->
+    <rect width="1440" height="900" fill="#080808"/>
+    <!-- grid floor lines -->
+    <g stroke="#111" stroke-width="1" opacity="0.8">
+      <line x1="0" y1="600" x2="1440" y2="600"/>
+      <line x1="0" y1="650" x2="1440" y2="650"/>
+      <line x1="0" y1="700" x2="1440" y2="700"/>
+      <line x1="0" y1="750" x2="1440" y2="750"/>
+      <line x1="0" y1="800" x2="1440" y2="800"/>
+      <!-- perspective verticals -->
+      <line x1="720" y1="500" x2="0" y2="900"/>
+      <line x1="720" y1="500" x2="200" y2="900"/>
+      <line x1="720" y1="500" x2="400" y2="900"/>
+      <line x1="720" y1="500" x2="600" y2="900"/>
+      <line x1="720" y1="500" x2="840" y2="900"/>
+      <line x1="720" y1="500" x2="1040" y2="900"/>
+      <line x1="720" y1="500" x2="1240" y2="900"/>
+      <line x1="720" y1="500" x2="1440" y2="900"/>
+    </g>
+
+    <!-- ─── LEFT SHELF UNIT ─── -->
+    <g transform="translate(30, 120)">
+      <!-- shelf frame -->
+      <rect x="0" y="0" width="160" height="400" fill="#0e0e0e" stroke="#1e1e1e" stroke-width="1.5" rx="2"/>
+      <!-- shelf boards -->
+      <rect x="8" y="80" width="144" height="6" fill="#1a1a1a"/>
+      <rect x="8" y="170" width="144" height="6" fill="#1a1a1a"/>
+      <rect x="8" y="260" width="144" height="6" fill="#1a1a1a"/>
+      <rect x="8" y="350" width="144" height="6" fill="#1a1a1a"/>
+      <!-- shelf items row 1 -->
+      <rect x="14" y="50" width="22" height="28" fill="#1a3a1a" rx="2" stroke="#2d5a2d" stroke-width="0.5"/>
+      <rect x="40" y="55" width="18" height="23" fill="#0d1f2d" rx="2" stroke="#1a3a4a" stroke-width="0.5"/>
+      <rect x="62" y="48" width="26" height="30" fill="#2a1a0a" rx="2" stroke="#4a3010" stroke-width="0.5"/>
+      <rect x="92" y="52" width="20" height="26" fill="#1a3a1a" rx="2" stroke="#2d5a2d" stroke-width="0.5"/>
+      <rect x="116" y="56" width="16" height="22" fill="#1a1a2a" rx="2" stroke="#2a2a4a" stroke-width="0.5"/>
+      <!-- shelf items row 2 -->
+      <rect x="14" y="140" width="30" height="28" fill="#0d1f2d" rx="2" stroke="#1a3a4a" stroke-width="0.5"/>
+      <rect x="48" y="145" width="22" height="23" fill="#1a3a1a" rx="2" stroke="#2d5a2d" stroke-width="0.5"/>
+      <rect x="74" y="138" width="24" height="30" fill="#2a1a0a" rx="2" stroke="#4a3010" stroke-width="0.5"/>
+      <rect x="102" y="142" width="18" height="26" fill="#1a1a2a" rx="2" stroke="#2a2a4a" stroke-width="0.5"/>
+      <rect x="124" y="148" width="20" height="20" fill="#1a3a1a" rx="2" stroke="#2d5a2d" stroke-width="0.5"/>
+      <!-- shelf items row 3 -->
+      <rect x="14" y="228" width="20" height="30" fill="#1a3a1a" rx="2" stroke="#2d5a2d" stroke-width="0.5"/>
+      <rect x="38" y="232" width="28" height="26" fill="#2a1a0a" rx="2" stroke="#4a3010" stroke-width="0.5"/>
+      <rect x="70" y="226" width="22" height="32" fill="#0d1f2d" rx="2" stroke="#1a3a4a" stroke-width="0.5"/>
+      <rect x="96" y="230" width="16" height="28" fill="#1a1a2a" rx="2" stroke="#2a2a4a" stroke-width="0.5"/>
+      <rect x="116" y="234" width="24" height="24" fill="#1a3a1a" rx="2" stroke="#2d5a2d" stroke-width="0.5"/>
+      <!-- price tags -->
+      <rect x="14" y="88" width="30" height="10" fill="#0a0a0a" rx="1"/>
+      <rect x="50" y="88" width="24" height="10" fill="#0a0a0a" rx="1"/>
+      <rect x="80" y="88" width="30" height="10" fill="#0a0a0a" rx="1"/>
+      <!-- ceiling light -->
+      <rect x="50" y="-20" width="60" height="8" fill="#1e2e1e" rx="2"/>
+      <line x1="60" y1="-12" x2="60" y2="0" stroke="#2d5a2d" stroke-width="1"/>
+      <line x1="100" y1="-12" x2="100" y2="0" stroke="#2d5a2d" stroke-width="1"/>
+      <!-- light cone -->
+      <polygon points="50,-12 110,-12 140,60 20,60" fill="rgba(74,222,128,0.02)"/>
+    </g>
+
+    <!-- ─── RIGHT SHELF UNIT ─── -->
+    <g transform="translate(1250, 100)">
+      <rect x="0" y="0" width="160" height="420" fill="#0e0e0e" stroke="#1e1e1e" stroke-width="1.5" rx="2"/>
+      <rect x="8" y="90" width="144" height="6" fill="#1a1a1a"/>
+      <rect x="8" y="180" width="144" height="6" fill="#1a1a1a"/>
+      <rect x="8" y="270" width="144" height="6" fill="#1a1a1a"/>
+      <rect x="8" y="360" width="144" height="6" fill="#1a1a1a"/>
+      <!-- items -->
+      <rect x="14" y="58" width="26" height="30" fill="#1a1a2a" rx="2" stroke="#2a2a4a" stroke-width="0.5"/>
+      <rect x="44" y="62" width="20" height="26" fill="#1a3a1a" rx="2" stroke="#2d5a2d" stroke-width="0.5"/>
+      <rect x="68" y="55" width="28" height="33" fill="#2a1a0a" rx="2" stroke="#4a3010" stroke-width="0.5"/>
+      <rect x="100" y="60" width="22" height="28" fill="#0d1f2d" rx="2" stroke="#1a3a4a" stroke-width="0.5"/>
+      <rect x="126" y="64" width="18" height="24" fill="#1a3a1a" rx="2" stroke="#2d5a2d" stroke-width="0.5"/>
+      <rect x="14" y="148" width="22" height="30" fill="#1a3a1a" rx="2" stroke="#2d5a2d" stroke-width="0.5"/>
+      <rect x="40" y="152" width="30" height="26" fill="#2a1a0a" rx="2" stroke="#4a3010" stroke-width="0.5"/>
+      <rect x="74" y="145" width="20" height="33" fill="#1a1a2a" rx="2" stroke="#2a2a4a" stroke-width="0.5"/>
+      <rect x="98" y="150" width="26" height="28" fill="#0d1f2d" rx="2" stroke="#1a3a4a" stroke-width="0.5"/>
+      <rect x="128" y="154" width="16" height="24" fill="#1a3a1a" rx="2" stroke="#2d5a2d" stroke-width="0.5"/>
+      <rect x="14" y="238" width="28" height="30" fill="#0d1f2d" rx="2" stroke="#1a3a4a" stroke-width="0.5"/>
+      <rect x="46" y="242" width="22" height="26" fill="#1a3a1a" rx="2" stroke="#2d5a2d" stroke-width="0.5"/>
+      <rect x="72" y="235" width="30" height="33" fill="#2a1a0a" rx="2" stroke="#4a3010" stroke-width="0.5"/>
+      <rect x="106" y="240" width="18" height="28" fill="#1a1a2a" rx="2" stroke="#2a2a4a" stroke-width="0.5"/>
+      <rect x="128" y="244" width="20" height="24" fill="#1a3a1a" rx="2" stroke="#2d5a2d" stroke-width="0.5"/>
+      <rect x="50" y="-20" width="60" height="8" fill="#1e2e1e" rx="2"/>
+      <line x1="60" y1="-12" x2="60" y2="0" stroke="#2d5a2d" stroke-width="1"/>
+      <line x1="100" y1="-12" x2="100" y2="0" stroke="#2d5a2d" stroke-width="1"/>
+      <polygon points="50,-12 110,-12 140,60 20,60" fill="rgba(74,222,128,0.02)"/>
+    </g>
+
+    <!-- ─── DELIVERY RIDER (center-right) ─── -->
+    <g transform="translate(1080, 500)" opacity="0.5">
+      <!-- bike body -->
+      <ellipse cx="40" cy="60" rx="35" ry="12" fill="none" stroke="#4ade80" stroke-width="1.5"/>
+      <circle cx="12" cy="70" r="10" fill="none" stroke="#4ade80" stroke-width="1.5"/>
+      <circle cx="68" cy="70" r="10" fill="none" stroke="#4ade80" stroke-width="1.5"/>
+      <line x1="12" y1="60" x2="40" y2="30" stroke="#4ade80" stroke-width="1.5"/>
+      <line x1="40" y1="30" x2="68" y2="60" stroke="#4ade80" stroke-width="1.5"/>
+      <line x1="40" y1="30" x2="50" y2="20" stroke="#4ade80" stroke-width="1.5"/>
+      <!-- rider body -->
+      <ellipse cx="38" cy="12" rx="8" ry="8" fill="none" stroke="#4ade80" stroke-width="1.5"/>
+      <line x1="38" y1="20" x2="38" y2="40" stroke="#4ade80" stroke-width="1.5"/>
+      <line x1="38" y1="28" x2="24" y2="36" stroke="#4ade80" stroke-width="1.5"/>
+      <line x1="38" y1="28" x2="52" y2="36" stroke="#4ade80" stroke-width="1.5"/>
+      <!-- delivery box -->
+      <rect x="46" y="22" width="20" height="16" fill="none" stroke="#4ade80" stroke-width="1.5" rx="2"/>
+      <line x1="46" y1="30" x2="66" y2="30" stroke="#4ade80" stroke-width="0.5"/>
+    </g>
+
+    <!-- ─── SCANNING LINES ─── -->
+    <g opacity="0.03">
+      <line x1="0" y1="200" x2="1440" y2="200" stroke="#4ade80" stroke-width="1"/>
+      <line x1="0" y1="400" x2="1440" y2="400" stroke="#4ade80" stroke-width="1"/>
+      <line x1="0" y1="600" x2="1440" y2="600" stroke="#4ade80" stroke-width="1"/>
+      <line x1="0" y1="800" x2="1440" y2="800" stroke="#4ade80" stroke-width="1"/>
+    </g>
+
+    <!-- ─── PHONE MOCKUP (far left mid) ─── -->
+    <g transform="translate(220, 350)" opacity="0.35">
+      <rect x="0" y="0" width="70" height="130" rx="10" fill="none" stroke="#333" stroke-width="1.5"/>
+      <rect x="5" y="10" width="60" height="100" rx="4" fill="#0d1a0d"/>
+      <!-- app interface lines -->
+      <rect x="8" y="14" width="40" height="6" rx="2" fill="#1a3a1a"/>
+      <rect x="8" y="24" width="54" height="3" rx="1" fill="#1e1e1e"/>
+      <rect x="8" y="30" width="40" height="3" rx="1" fill="#1e1e1e"/>
+      <rect x="8" y="38" width="54" height="20" rx="3" fill="#0d2010" stroke="#2d5a2d" stroke-width="0.5"/>
+      <text x="12" y="50" font-size="6" fill="#4ade80" font-family="monospace">8 min away</text>
+      <circle cx="24" cy="72" r="8" fill="none" stroke="#4ade80" stroke-width="1"/>
+      <circle cx="24" cy="72" r="3" fill="#4ade80"/>
+      <line x1="32" y1="72" x2="56" y2="72" stroke="#1e1e1e" stroke-width="1"/>
+      <line x1="32" y1="76" x2="50" y2="76" stroke="#1e1e1e" stroke-width="1"/>
+      <rect x="8" y="90" width="54" height="14" rx="3" fill="#1a3a1a" stroke="#2d5a2d" stroke-width="0.5"/>
+      <text x="20" y="100" font-size="6" fill="#4ade80" font-family="monospace">TRACK ORDER</text>
+    </g>
+
+    <!-- ─── BARCODE (top right area) ─── -->
+    <g transform="translate(1180, 40)" opacity="0.15">
+      <rect x="0" y="0" width="120" height="50" fill="none"/>
+      <g fill="#4ade80">
+        <rect x="0" y="0" width="3" height="40"/>
+        <rect x="5" y="0" width="1" height="40"/>
+        <rect x="8" y="0" width="4" height="40"/>
+        <rect x="14" y="0" width="2" height="40"/>
+        <rect x="18" y="0" width="3" height="40"/>
+        <rect x="23" y="0" width="1" height="40"/>
+        <rect x="26" y="0" width="5" height="40"/>
+        <rect x="33" y="0" width="2" height="40"/>
+        <rect x="37" y="0" width="3" height="40"/>
+        <rect x="42" y="0" width="1" height="40"/>
+        <rect x="45" y="0" width="4" height="40"/>
+        <rect x="51" y="0" width="2" height="40"/>
+        <rect x="55" y="0" width="3" height="40"/>
+        <rect x="60" y="0" width="1" height="40"/>
+        <rect x="63" y="0" width="5" height="40"/>
+        <rect x="70" y="0" width="2" height="40"/>
+        <rect x="74" y="0" width="3" height="40"/>
+        <rect x="79" y="0" width="1" height="40"/>
+        <rect x="82" y="0" width="4" height="40"/>
+        <rect x="88" y="0" width="2" height="40"/>
+        <rect x="92" y="0" width="3" height="40"/>
+        <rect x="97" y="0" width="1" height="40"/>
+        <rect x="100" y="0" width="5" height="40"/>
+        <rect x="107" y="0" width="2" height="40"/>
+        <rect x="111" y="0" width="4" height="40"/>
+        <rect x="117" y="0" width="3" height="40"/>
+      </g>
+      <text x="0" y="48" font-size="7" fill="#4ade80" font-family="monospace" letter-spacing="3">DARK STORE 2025</text>
+    </g>
+
+    <!-- ─── ZEPTO-STYLE SPEED TAG ─── -->
+    <g transform="translate(680, 820)" opacity="0.2">
+      <rect x="0" y="0" width="80" height="28" rx="6" fill="none" stroke="#4ade80" stroke-width="1"/>
+      <text x="10" y="18" font-size="10" fill="#4ade80" font-family="monospace" font-weight="bold">10 MIN</text>
+    </g>
+    <g transform="translate(790, 820)" opacity="0.12">
+      <rect x="0" y="0" width="80" height="28" rx="6" fill="none" stroke="#4ade80" stroke-width="1"/>
+      <text x="10" y="18" font-size="10" fill="#4ade80" font-family="monospace" font-weight="bold">DELIVERY</text>
+    </g>
+
+    <!-- ambient glow spots -->
+    <circle cx="200" cy="300" r="200" fill="rgba(74,222,128,0.015)"/>
+    <circle cx="1240" cy="280" r="200" fill="rgba(74,222,128,0.015)"/>
+    <circle cx="720" cy="600" r="300" fill="rgba(74,222,128,0.008)"/>
+  </svg>
+</div>
+
+<!-- ─── HERO ─── -->
+<div class="hero">
+  <div class="hero-bg-scene">
+    <svg width="100%" height="100%" viewBox="0 0 1440 340" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1440" height="340" fill="#090909"/>
+      <!-- ceiling strip lights -->
+      <rect x="0" y="0" width="1440" height="3" fill="#111"/>
+      <rect x="100" y="3" width="200" height="4" fill="#1e2e1e" opacity="0.8"/>
+      <rect x="420" y="3" width="200" height="4" fill="#1e2e1e" opacity="0.8"/>
+      <rect x="740" y="3" width="200" height="4" fill="#1e2e1e" opacity="0.8"/>
+      <rect x="1060" y="3" width="200" height="4" fill="#1e2e1e" opacity="0.8"/>
+      <!-- shelf silhouettes -->
+      <rect x="0" y="20" width="200" height="280" fill="#0c0c0c" stroke="#151515" stroke-width="1"/>
+      <rect x="210" y="20" width="200" height="280" fill="#0c0c0c" stroke="#151515" stroke-width="1"/>
+      <rect x="420" y="20" width="200" height="280" fill="#0c0c0c" stroke="#151515" stroke-width="1"/>
+      <rect x="630" y="20" width="200" height="280" fill="#0c0c0c" stroke="#151515" stroke-width="1"/>
+      <rect x="840" y="20" width="200" height="280" fill="#0c0c0c" stroke="#151515" stroke-width="1"/>
+      <rect x="1050" y="20" width="200" height="280" fill="#0c0c0c" stroke="#151515" stroke-width="1"/>
+      <rect x="1260" y="20" width="200" height="280" fill="#0c0c0c" stroke="#151515" stroke-width="1"/>
+      <!-- shelf rows -->
+      <rect x="0" y="90" width="1440" height="4" fill="#141414"/>
+      <rect x="0" y="170" width="1440" height="4" fill="#141414"/>
+      <rect x="0" y="250" width="1440" height="4" fill="#141414"/>
+      <!-- product blobs on shelves -->
+      <g opacity="0.6">
+        <rect x="15" y="55" width="25" height="32" rx="2" fill="#1a3a1a"/>
+        <rect x="44" y="62" width="18" height="25" rx="2" fill="#0d1f2d"/>
+        <rect x="66" y="50" width="28" height="37" rx="2" fill="#2a1a0a"/>
+        <rect x="98" y="58" width="20" height="29" rx="2" fill="#1a1a2a"/>
+        <rect x="122" y="54" width="30" height="33" rx="2" fill="#1a3a1a"/>
+        <rect x="156" y="60" width="22" height="27" rx="2" fill="#2a1a0a"/>
+
+        <rect x="225" y="55" width="28" height="32" rx="2" fill="#0d1f2d"/>
+        <rect x="257" y="60" width="20" height="27" rx="2" fill="#1a3a1a"/>
+        <rect x="281" y="52" width="26" height="35" rx="2" fill="#1a1a2a"/>
+        <rect x="311" y="58" width="22" height="29" rx="2" fill="#2a1a0a"/>
+        <rect x="337" y="55" width="30" height="32" rx="2" fill="#1a3a1a"/>
+        <rect x="371" y="62" width="18" height="25" rx="2" fill="#0d1f2d"/>
+
+        <rect x="435" y="55" width="24" height="32" rx="2" fill="#2a1a0a"/>
+        <rect x="463" y="60" width="30" height="27" rx="2" fill="#1a3a1a"/>
+        <rect x="497" y="50" width="20" height="37" rx="2" fill="#1a1a2a"/>
+        <rect x="521" y="58" width="26" height="29" rx="2" fill="#0d1f2d"/>
+        <rect x="551" y="54" width="22" height="33" rx="2" fill="#1a3a1a"/>
+        <rect x="577" y="62" width="18" height="25" rx="2" fill="#2a1a0a"/>
+
+        <rect x="645" y="55" width="26" height="32" rx="2" fill="#1a3a1a"/>
+        <rect x="675" y="60" width="20" height="27" rx="2" fill="#2a1a0a"/>
+        <rect x="699" y="52" width="28" height="35" rx="2" fill="#0d1f2d"/>
+        <rect x="731" y="58" width="22" height="29" rx="2" fill="#1a1a2a"/>
+        <rect x="757" y="55" width="30" height="32" rx="2" fill="#1a3a1a"/>
+        <rect x="791" y="62" width="18" height="25" rx="2" fill="#2a1a0a"/>
+
+        <rect x="855" y="55" width="22" height="32" rx="2" fill="#1a1a2a"/>
+        <rect x="881" y="60" width="28" height="27" rx="2" fill="#1a3a1a"/>
+        <rect x="913" y="50" width="20" height="37" rx="2" fill="#2a1a0a"/>
+        <rect x="937" y="58" width="30" height="29" rx="2" fill="#0d1f2d"/>
+        <rect x="971" y="54" width="24" height="33" rx="2" fill="#1a3a1a"/>
+        <rect x="999" y="62" width="18" height="25" rx="2" fill="#1a1a2a"/>
+
+        <rect x="1065" y="55" width="26" height="32" rx="2" fill="#0d1f2d"/>
+        <rect x="1095" y="62" width="20" height="25" rx="2" fill="#1a3a1a"/>
+        <rect x="1119" y="50" width="28" height="37" rx="2" fill="#2a1a0a"/>
+        <rect x="1151" y="58" width="22" height="29" rx="2" fill="#1a1a2a"/>
+        <rect x="1177" y="55" width="30" height="32" rx="2" fill="#1a3a1a"/>
+        <rect x="1211" y="62" width="18" height="25" rx="2" fill="#0d1f2d"/>
+
+        <rect x="1275" y="55" width="24" height="32" rx="2" fill="#1a3a1a"/>
+        <rect x="1303" y="60" width="30" height="27" rx="2" fill="#2a1a0a"/>
+        <rect x="1337" y="52" width="20" height="35" rx="2" fill="#1a1a2a"/>
+        <rect x="1361" y="58" width="26" height="29" rx="2" fill="#0d1f2d"/>
+        <rect x="1391" y="55" width="22" height="32" rx="2" fill="#1a3a1a"/>
+      </g>
+      <!-- light bleed from certain shelves -->
+      <rect x="100" y="3" width="200" height="340" fill="rgba(74,222,128,0.008)"/>
+      <rect x="740" y="3" width="200" height="340" fill="rgba(74,222,128,0.008)"/>
+    </svg>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Dark Store · Research Survey</div>
+    <h1>Does <span>10-minute delivery</span> actually work, or is it just hype?</h1>
+    <p>Help us decode the trade-off between speed and accuracy in India's quick commerce boom.</p>
+  </div>
+</div>
+
+<!-- ─── TRACKER ─── -->
+<div class="tracker-wrap">
+  <div class="tracker-meta">
+    <span id="stage-label">Order placed</span>
+    <span class="pct" id="pct-label">0% complete</span>
+  </div>
+  <div class="track-bar">
+    <div class="track-seg"><div class="track-seg-fill" id="s1f"></div></div>
+    <div class="track-seg"><div class="track-seg-fill" id="s2f"></div></div>
+    <div class="track-seg"><div class="track-seg-fill" id="s3f"></div></div>
+    <div class="track-seg"><div class="track-seg-fill" id="s4f"></div></div>
+  </div>
+  <div class="track-dots">
+    <div class="tdot active" id="d0"></div>
+    <div class="tdot" id="d1"></div>
+    <div class="tdot" id="d2"></div>
+    <div class="tdot" id="d3"></div>
+    <div class="tdot" id="d4"></div>
+  </div>
+  <div class="stage-names">
+    <span>Profile</span><span>Accuracy</span><span>Speed</span><span>Loyalty</span><span>Done</span>
+  </div>
+</div>
+
+<!-- ─── PAGES ─── -->
+<div class="main">
+
+<!-- PAGE 0: DEMOGRAPHICS -->
+<div id="page-0">
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div>
+        <div class="section-title">Demographics & Filtering</div>
+        <div class="section-sub">Establishing your user profile and demographic context</div>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q1.</span> Full name <span class="q-tag">Optional</span></div>
+      <input type="text" id="q1" placeholder="Your name (optional)">
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q2.</span> Age group</div>
+      <div class="radio-group">
+        <label><input type="radio" name="q2" value="18-28 Gen Z"><div class="rdot"></div><span>18–28 · Gen Z</span></label>
+        <label><input type="radio" name="q2" value="29-44 Millennials"><div class="rdot"></div><span>29–44 · Millennials</span></label>
+        <label><input type="radio" name="q2" value="45-60 Gen X"><div class="rdot"></div><span>45–60 · Gen X</span></label>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q3.</span> City of residence</div>
+      <input type="text" id="q3" placeholder="e.g. Mumbai, Bengaluru, Delhi, Hyderabad…">
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q4.</span> Occupation</div>
+      <div class="radio-group">
+        <label><input type="radio" name="q4" value="Student"><div class="rdot"></div><span>Student</span></label>
+        <label><input type="radio" name="q4" value="Salaried"><div class="rdot"></div><span>Salaried</span></label>
+        <label><input type="radio" name="q4" value="Self-employed"><div class="rdot"></div><span>Self-employed</span></label>
+        <label><input type="radio" name="q4" value="Other"><div class="rdot"></div><span>Other</span></label>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q5.</span> Primary quick commerce app(s) used <span class="q-tag">Multi-select</span></div>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="q5" value="Zepto"><div class="cbox"></div><span>Zepto</span></label>
+        <label><input type="checkbox" name="q5" value="Blinkit"><div class="cbox"></div><span>Blinkit</span></label>
+        <label><input type="checkbox" name="q5" value="Swiggy Instamart"><div class="cbox"></div><span>Swiggy Instamart</span></label>
+        <label><input type="checkbox" name="q5" value="BigBasket Now"><div class="cbox"></div><span>BigBasket Now</span></label>
+        <label><input type="checkbox" name="q5" value="Other"><div class="cbox"></div><span>Other</span></label>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q6.</span> How many times have you ordered in the last 30 days?</div>
+      <div class="radio-group">
+        <label><input type="radio" name="q6" value="1-3 times"><div class="rdot"></div><span>1–3 times</span></label>
+        <label><input type="radio" name="q6" value="4-7 times"><div class="rdot"></div><span>4–7 times</span></label>
+        <label><input type="radio" name="q6" value="8-15 times"><div class="rdot"></div><span>8–15 times</span></label>
+        <label><input type="radio" name="q6" value="15+ times"><div class="rdot"></div><span>15+ times</span></label>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q7.</span> Do you primarily use these apps for "Emergency" needs or "Planned" household restocking? <span class="q-tag">Pivot</span></div>
+      <div class="radio-group">
+        <label><input type="radio" name="q7" value="Emergency — immediate need"><div class="rdot"></div><span>Emergency — I need it right now</span></label>
+        <label><input type="radio" name="q7" value="Planned — household restocking"><div class="rdot"></div><span>Planned — regular household restocking</span></label>
+        <label><input type="radio" name="q7" value="Both equally"><div class="rdot"></div><span>Both equally</span></label>
+      </div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="btn-next" onclick="goTo(1)">Next — Order Accuracy &rarr;</button>
+  </div>
+</div>
+
+<!-- PAGE 1: ORDER ACCURACY -->
+<div id="page-1" class="hidden">
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div>
+        <div class="section-title">Order Accuracy & Trust</div>
+        <div class="section-sub">Testing H1 — accuracy builds the "Trust-Asset"</div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#444;margin-bottom:24px;letter-spacing:0.5px">RATE EACH STATEMENT &nbsp; 1 = Strongly Disagree → 5 = Strongly Agree</p>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q1.</span> I can rely on the app to deliver every single item I ordered.</div>
+      <div class="likert" id="p2q1-group">
+        <label><input type="radio" name="p2q1" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
+        <label><input type="radio" name="p2q1" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label>
+        <label><input type="radio" name="p2q1" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label>
+        <label><input type="radio" name="p2q1" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label>
+        <label><input type="radio" name="p2q1" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q2.</span> It is common for me to find at least one missing item in my grocery bag. <span class="q-tag">Reverse-coded</span></div>
+      <div class="likert">
+        <label><input type="radio" name="p2q2" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
+        <label><input type="radio" name="p2q2" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label>
+        <label><input type="radio" name="p2q2" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label>
+        <label><input type="radio" name="p2q2" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label>
+        <label><input type="radio" name="p2q2" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q3.</span> The "Pick-and-Pack" precision of my preferred app is highly professional.</div>
+      <div class="likert">
+        <label><input type="radio" name="p2q3" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
+        <label><input type="radio" name="p2q3" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label>
+        <label><input type="radio" name="p2q3" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label>
+        <label><input type="radio" name="p2q3" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label>
+        <label><input type="radio" name="p2q3" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-attention">
+      <div class="q-label"><span class="q-num">Q4.</span> Attention check — please select "Disagree" for this statement to confirm you are reading carefully. <span class="q-tag">Attention check</span></div>
+      <div class="likert">
+        <label><input type="radio" name="p2q4" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
+        <label><input type="radio" name="p2q4" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label>
+        <label><input type="radio" name="p2q4" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label>
+        <label><input type="radio" name="p2q4" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label>
+        <label><input type="radio" name="p2q4" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q5.</span> Receiving the correct items is the most important part of my shopping experience.</div>
+      <div class="likert">
+        <label><input type="radio" name="p2q5" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
+        <label><input type="radio" name="p2q5" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label>
+        <label><input type="radio" name="p2q5" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label>
+        <label><input type="radio" name="p2q5" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label>
+        <label><input type="radio" name="p2q5" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q6.</span> I often feel anxious that the perishables (vegetables/milk) delivered will be of poor quality. <span class="q-tag">Reverse-coded</span></div>
+      <div class="likert">
+        <label><input type="radio" name="p2q6" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
+        <label><input type="radio" name="p2q6" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label>
+        <label><input type="radio" name="p2q6" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label>
+        <label><input type="radio" name="p2q6" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label>
+        <label><input type="radio" name="p2q6" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q7.</span> I feel a sense of "psychological safety" when I click 'order' on my primary app.</div>
+      <div class="likert">
+        <label><input type="radio" name="p2q7" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
+        <label><input type="radio" name="p2q7" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label>
+        <label><input type="radio" name="p2q7" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label>
+        <label><input type="radio" name="p2q7" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label>
+        <label><input type="radio" name="p2q7" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q8.</span> My trust in the platform would be permanently damaged by a single incorrect order.</div>
+      <div class="likert">
+        <label><input type="radio" name="p2q8" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label>
+        <label><input type="radio" name="p2q8" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label>
+        <label><input type="radio" name="p2q8" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label>
+        <label><input type="radio" name="p2q8" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label>
+        <label><input type="radio" name="p2q8" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label>
+      </div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="btn-back" onclick="goTo(0)">&larr; Back</button>
+    <button class="btn-next" onclick="goTo(2)">Next — Delivery Speed &rarr;</button>
+  </div>
+</div>
+
+<!-- PAGE 2: DELIVERY SPEED -->
+<div id="page-2" class="hidden">
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div>
+        <div class="section-title">Delivery Speed & Time</div>
+        <div class="section-sub">Testing H2 — diminishing marginal utility of ultra-fast delivery</div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#444;margin-bottom:24px;letter-spacing:0.5px">RATE EACH STATEMENT &nbsp; 1 = Strongly Disagree → 5 = Strongly Agree</p>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q1.</span> The speed of delivery (under 15 minutes) is the main reason I use these apps.</div>
+      <div class="likert"><label><input type="radio" name="p3q1" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q1" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q1" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q1" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q1" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q2.</span> I wouldn't mind if a delivery took 25 minutes instead of 10, as long as the order is perfect. <span class="q-tag">Reverse-coded</span></div>
+      <div class="likert"><label><input type="radio" name="p3q2" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q2" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q2" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q2" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q2" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-attention">
+      <div class="q-label"><span class="q-num">Q3.</span> Quality control check — please select "Strongly Agree" for this statement. <span class="q-tag">Attention check</span></div>
+      <div class="likert"><label><input type="radio" name="p3q3" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q3" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q3" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q3" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q3" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q4.</span> A 5-minute delay beyond the promised time significantly impacts my satisfaction.</div>
+      <div class="likert"><label><input type="radio" name="p3q4" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q4" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q4" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q4" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q4" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q5.</span> I find the real-time tracking of my delivery rider to be a necessary feature.</div>
+      <div class="likert"><label><input type="radio" name="p3q5" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q5" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q5" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q5" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q5" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q6.</span> I rarely check the "time remaining" countdown after I place my order. <span class="q-tag">Reverse-coded</span></div>
+      <div class="likert"><label><input type="radio" name="p3q6" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q6" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q6" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q6" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q6" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q7.</span> Speed is more important to me than the user interface of the app.</div>
+      <div class="likert"><label><input type="radio" name="p3q7" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p3q7" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p3q7" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p3q7" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p3q7" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="btn-back" onclick="goTo(1)">&larr; Back</button>
+    <button class="btn-next" onclick="goTo(3)">Next — Brand Loyalty &rarr;</button>
+  </div>
+</div>
+
+<!-- PAGE 3: BRAND LOYALTY -->
+<div id="page-3" class="hidden">
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div>
+        <div class="section-title">App Interface & Brand Loyalty</div>
+        <div class="section-sub">Measuring stickiness and friction reduction</div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#444;margin-bottom:24px;letter-spacing:0.5px">RATE EACH STATEMENT &nbsp; 1 = Strongly Disagree → 5 = Strongly Agree</p>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q1.</span> The app interface makes it effortless for me to find what I need and check out.</div>
+      <div class="likert"><label><input type="radio" name="p4q1" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p4q1" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p4q1" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p4q1" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p4q1" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-attention">
+      <div class="q-label"><span class="q-num">Q2.</span> If you are reading this, please select "Neither Agree nor Disagree." <span class="q-tag">Attention check</span></div>
+      <div class="likert"><label><input type="radio" name="p4q2" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p4q2" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p4q2" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p4q2" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p4q2" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q3.</span> I find the app interface cluttered and difficult to navigate. <span class="q-tag">Reverse-coded</span></div>
+      <div class="likert"><label><input type="radio" name="p4q3" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p4q3" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p4q3" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p4q3" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p4q3" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q4.</span> I consider myself a "Loyalist" to my current app and rarely check prices on others.</div>
+      <div class="likert"><label><input type="radio" name="p4q4" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p4q4" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p4q4" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p4q4" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p4q4" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">Q5.</span> I intend to continue using this platform for my daily habits over the next 90 days.</div>
+      <div class="likert"><label><input type="radio" name="p4q5" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p4q5" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p4q5" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p4q5" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p4q5" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="q-counterbalance">
+      <div class="q-label"><span class="q-num">Q6.</span> If a competitor offered 5-minute faster delivery but had more errors, I would stay with my current app. <span class="q-tag">Counter-balance</span></div>
+      <div class="likert"><label><input type="radio" name="p4q6" value="1"><div class="lbtn">1<br><span style="font-size:9px;color:#555">Strongly<br>Disagree</span></div></label><label><input type="radio" name="p4q6" value="2"><div class="lbtn">2<br><span style="font-size:9px;color:#555">Disagree</span></div></label><label><input type="radio" name="p4q6" value="3"><div class="lbtn">3<br><span style="font-size:9px;color:#555">Neutral</span></div></label><label><input type="radio" name="p4q6" value="4"><div class="lbtn">4<br><span style="font-size:9px;color:#555">Agree</span></div></label><label><input type="radio" name="p4q6" value="5"><div class="lbtn">5<br><span style="font-size:9px;color:#555">Strongly<br>Agree</span></div></label></div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="btn-back" onclick="goTo(2)">&larr; Back</button>
+    <button class="btn-next" id="submit-btn" onclick="submitSurvey()">Submit Survey &rarr;</button>
+  </div>
+</div>
+
+<!-- PAGE 4: THANK YOU -->
+<div id="page-4" class="hidden">
+  <div class="thank-you">
+    <div class="ty-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="ty-h">Order delivered!</div>
+    <p class="ty-p">Thank you for completing the survey. Your responses will help decode the speed vs accuracy trade-off in India's quick commerce landscape.</p>
+    <p style="font-size:11px;color:#333;margin-top:32px;letter-spacing:1px">RESPONSE RECORDED SUCCESSFULLY</p>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  REPLACE THIS URL with your Google Apps Script Web App URL
+//  Go to script.google.com → paste apps_script.js → Deploy > Web App
+// ══════════════════════════════════════════════════
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwtzH--6FU_ntLH7X0ecQM789mwHTOzzGE1RVahBzihpYeGXPsK6y9GOYQSEnLHrX87Jg/exec";
+
+const stageLabels = ["Order placed","Picking items","Out for delivery","Almost there","Delivered!"];
+const stagePcts   = [0, 25, 50, 75, 100];
+
+function goTo(n) {
+  for (let i = 0; i < 5; i++) {
+    const p = document.getElementById("page-" + i);
+    if (p) p.classList.toggle("hidden", i !== n);
+  }
+  updateTracker(n);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function updateTracker(page) {
+  document.getElementById("stage-label").textContent = stageLabels[page];
+  document.getElementById("pct-label").textContent   = stagePcts[page] + "% complete";
+  for (let i = 1; i <= 4; i++) {
+    const f = document.getElementById("s" + i + "f");
+    if (f) f.style.width = page >= i ? "100%" : "0%";
+  }
+  for (let i = 0; i < 5; i++) {
+    const d = document.getElementById("d" + i);
+    if (!d) continue;
+    d.className = "tdot";
+    if (i < page)      d.classList.add("done");
+    else if (i === page) d.classList.add("active");
+  }
+}
+
+function getRadioVal(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : "";
+}
+function getCheckboxVals(name) {
+  return [...document.querySelectorAll(`input[name="${name}"]:checked`)]
+    .map(e => e.value).join(", ");
+}
+
+function showToast(msg, isError) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.borderColor = isError ? "#ef4444" : "#4ade80";
+  t.style.color        = isError ? "#ef4444" : "#4ade80";
+  t.style.background   = isError ? "rgba(26,0,0,0.95)" : "#0d2010";
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3500);
+}
+
+function submitSurvey() {
+  const btn = document.getElementById("submit-btn");
+  btn.disabled = true;
+  btn.textContent = "Submitting…";
+
+  const payload = {
+    q1: document.getElementById("q1").value,
+    q2: getRadioVal("q2"),
+    q3: document.getElementById("q3").value,
+    q4: getRadioVal("q4"),
+    q5: getCheckboxVals("q5"),
+    q6: getRadioVal("q6"),
+    q7: getRadioVal("q7"),
+    p2q1: getRadioVal("p2q1"), p2q2: getRadioVal("p2q2"), p2q3: getRadioVal("p2q3"),
+    p2q4: getRadioVal("p2q4"), p2q5: getRadioVal("p2q5"), p2q6: getRadioVal("p2q6"),
+    p2q7: getRadioVal("p2q7"), p2q8: getRadioVal("p2q8"),
+    p3q1: getRadioVal("p3q1"), p3q2: getRadioVal("p3q2"), p3q3: getRadioVal("p3q3"),
+    p3q4: getRadioVal("p3q4"), p3q5: getRadioVal("p3q5"), p3q6: getRadioVal("p3q6"),
+    p3q7: getRadioVal("p3q7"),
+    p4q1: getRadioVal("p4q1"), p4q2: getRadioVal("p4q2"), p4q3: getRadioVal("p4q3"),
+    p4q4: getRadioVal("p4q4"), p4q5: getRadioVal("p4q5"), p4q6: getRadioVal("p4q6")
+  };
+
+  // No URL configured — demo mode, go straight to thank-you
+  if (!SHEET_URL || SHEET_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE") {
+    setTimeout(() => goTo(4), 600);
+    return;
+  }
+
+  // Google Apps Script requires no-cors for POST from a plain HTML file.
+  // We fire-and-forget with no-cors (response is opaque) and always show thank-you.
+  try {
+    fetch(SHEET_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  } catch (_) {}
+  // Always proceed to thank-you — GAS will still write the row
+  setTimeout(() => goTo(4), 600);
+}
+</script>
+</body>
+</html>
