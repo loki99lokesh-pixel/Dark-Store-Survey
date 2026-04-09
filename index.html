@@ -1105,13 +1105,13 @@ const stagePcts   = [0, 25, 50, 75, 100];
 // Each page lists: [containerSelector, type, name/id, required]
 // type: 'radio' | 'checkbox' | 'text-optional' | 'text-required'
 const PAGE_RULES = {
-  0: [
-    {sel:'#page-0 .q-block:nth-of-type(2)', type:'radio',    name:'q2',  msg:'Please select your age group.'},
-    {sel:'#page-0 .q-block:nth-of-type(3)', type:'text',     id:'q3',    msg:'Please enter your city.'},
-    {sel:'#page-0 .q-block:nth-of-type(4)', type:'radio',    name:'q4',  msg:'Please select your occupation.'},
-    {sel:'#page-0 .q-block:nth-of-type(5)', type:'checkbox', name:'q5',  msg:'Please select at least one app.'},
-    {sel:'#page-0 .q-block:nth-of-type(6)', type:'radio',    name:'q6',  msg:'Please select your order frequency.'},
-    {sel:'#page-0 .q-block:nth-of-type(7)', type:'radio',    name:'q7',  msg:'Please select your usage type.'},
+ 0: [
+    {sel:'#page-0 .q-block:nth-child(4)', type:'radio',    name:'q2',  msg:'Please select your age group.'},
+    {sel:'#page-0 .q-block:nth-child(6)', type:'text',     id:'q3',    msg:'Please enter your city.'},
+    {sel:'#page-0 .q-block:nth-child(8)', type:'radio',    name:'q4',  msg:'Please select your occupation.'},
+    {sel:'#page-0 .q-block:nth-child(10)', type:'checkbox', name:'q5',  msg:'Please select at least one app.'},
+    {sel:'#page-0 .q-block:nth-child(12)', type:'radio',    name:'q6',  msg:'Please select your order frequency.'},
+    {sel:'#page-0 .q-block:nth-child(14)', type:'radio',    name:'q7',  msg:'Please select your usage type.'},
   ],
   1: [
     {sel:'[data-qid="p2q1"]', type:'radio', name:'p2q1', msg:'Please rate this statement.'},
